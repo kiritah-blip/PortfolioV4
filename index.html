@@ -429,14 +429,13 @@
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
-      /* Démarre après la fadeUp (0.55s + 0.9s ≈ 1.5s) */
       animation: shimmer-sweep 5s linear infinite;
       animation-delay: 1.6s;
     }
     @keyframes shimmer-sweep {
-      0%   { background-position: 0%   center; } /* reflet hors cadre à droite */
-      65%  { background-position: 100% center; } /* reflet hors cadre à gauche */
-      100% { background-position: 100% center; } /* pause avant la prochaine passe */
+      0%   { background-position: 0%   center; }
+      65%  { background-position: 100% center; }
+      100% { background-position: 100% center; }
     }
     .hero-name-line { display: block; font-size: clamp(1.4rem, 4vw, 2.8rem); letter-spacing: 0.25em; padding-left: 0.25em; color: var(--text2); font-weight: 400; text-shadow: none; margin-top: 0.3rem; }
     .hero-name-line em { font-style: normal; color: var(--blue); font-weight: 600; }
@@ -645,6 +644,7 @@
       padding: 1.8rem; position: relative; overflow: hidden;
       transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s, opacity 0.28s ease;
       display: flex; flex-direction: column;
+      cursor: pointer;
     }
     .card.card-hidden {
       opacity: 0 !important;
@@ -1381,20 +1381,16 @@
     /* Annuler le scale au hover dans le carousel (on veut pas de zoom) */
     .carousel-scene .card:hover .card-preview { transform: scale(1.0); }
 
-    /* 2. Bordure holographique — carte active uniquement
-          Réutilise @keyframes card-border-spin déjà défini plus bas              */
+    /* 2. Bordure or subtil — carte active uniquement (monochrome, sans arc-en-ciel) */
     .carousel-scene .carousel-item.c-active {
-      border-image: conic-gradient(
-        from var(--card-border-angle),
-        var(--accent)          0%,
-        rgba(91,155,213,1)    18%,
-        rgba(160,80,255,0.95) 36%,
-        rgba(60,210,185,0.90) 52%,
-        var(--accent)         68%,
-        rgba(91,155,213,1)    84%,
-        var(--accent)        100%
+      border-image: linear-gradient(
+        160deg,
+        rgba(232,185,74,0.85)  0%,
+        rgba(200,160,58,0.50) 40%,
+        rgba(232,185,74,0.70) 70%,
+        rgba(180,140,45,0.40) 100%
       ) 1;
-      animation: card-border-spin 5s linear infinite;
+      animation: none;
     }
 
     /* 3. Lueur ambiante (box-shadow) selon l'état */
@@ -1430,19 +1426,14 @@
     .card:hover {
       box-shadow: 0 4px 8px rgba(0,0,0,0.12),
                   0 20px 60px rgba(0,0,0,0.42);
-      border-image: conic-gradient(
-        from var(--card-border-angle),
-        var(--blue-dim)  0%,
-        var(--blue)      15%,
-        var(--accent)    28%,
-        var(--blue)      41%,
-        var(--blue-dim)  50%,
-        var(--blue)      63%,
-        var(--accent)    76%,
-        var(--blue)      89%,
-        var(--blue-dim) 100%
+      border-image: linear-gradient(
+        160deg,
+        rgba(232,185,74,0.70)  0%,
+        rgba(200,160,58,0.35) 45%,
+        rgba(232,185,74,0.55) 75%,
+        rgba(180,140,45,0.25) 100%
       ) 1;
-      animation: card-border-spin 4s linear infinite;
+      animation: none;
     }
     @keyframes card-border-spin {
       to { --card-border-angle: 360deg; }
@@ -2099,6 +2090,12 @@
       .nav-links a:not(.nav-cv)::after { height: 2px; }
     }
 
+    /* ── CAROUSEL : adaptation mode clair ──
+       Image de fond masquée → cartes propres sur surface beige, texte CSS vars */
+    [data-theme="light"] .carousel-scene .carousel-item .card-preview {
+      opacity: 0 !important;
+    }
+
     /* ── SCROLL PROGRESS BAR ── */
     #scroll-progress {
       position: fixed;
@@ -2372,6 +2369,28 @@
       letter-spacing: 15px;
       margin: 0;
       text-transform: uppercase;
+      /* Dégradé argent → blanc → or pâle → blanc → argent */
+      background: linear-gradient(
+        160deg,
+        #8a8480   0%,
+        #d8d4ce  15%,
+        #ffffff  32%,
+        #fef5d0  50%,
+        #e8c84a  58%,
+        #fef5d0  66%,
+        #ffffff  80%,
+        #8a8480 100%
+      );
+      background-size: 200% 100%;
+      background-position: 50% center;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gate-title-breathe 5s ease-in-out infinite;
+    }
+    @keyframes gate-title-breathe {
+      0%, 100% { background-position: 42% center; }
+      50%      { background-position: 58% center; }
     }
     #landing-gate .name {
       font-family: 'Lora', serif;
@@ -2934,7 +2953,7 @@
 
   <footer>
     <span class="ft-name">Jules Balluais</span>
-    <span class="ft-copy" data-i18n="contact.footer-copy">© 2025 — BUT Mesures Physiques · IUT de Blois</span>
+    <span class="ft-copy" data-i18n="contact.footer-copy">© 2026 — BUT Mesures Physiques · IUT de Blois</span>
   </footer>
 
   <!-- ══════════════════════════════
@@ -5075,7 +5094,7 @@
           'contact.success-text':  'Merci de m\'avoir contacté.<br>Je vous répondrai dans les meilleurs délais.',
           'contact.reset':         'Envoyer un autre message',
           'contact.note':          'Vos données ne sont pas conservées ni partagées',
-          'contact.footer-copy':   '© 2025 — BUT Mesures Physiques · IUT de Blois',
+          'contact.footer-copy':   '© 2026 — BUT Mesures Physiques · IUT de Blois',
           /* Filtre projets */
           'filter.all': 'Tous',
           'filter.physique': 'Physique',
@@ -5243,7 +5262,7 @@
           'contact.success-text':  'Thank you for reaching out.<br>I\'ll get back to you as soon as possible.',
           'contact.reset':         'Send another message',
           'contact.note':          'Your data is not stored or shared',
-          'contact.footer-copy':   '© 2025 — BUT Mesures Physiques · IUT de Blois',
+          'contact.footer-copy':   '© 2026 — BSc Physical Measurements · IUT de Blois',
           /* Filtre projets */
           'filter.all': 'All',
           'filter.physique': 'Physics',
@@ -5470,7 +5489,7 @@
           'contact.success-text':  'Vielen Dank für Ihre Nachricht.<br>Ich werde mich so bald wie möglich bei Ihnen melden.',
           'contact.reset':         'Weitere Nachricht senden',
           'contact.note':          'Ihre Daten werden nicht gespeichert oder weitergegeben',
-          'contact.footer-copy':   '© 2025 — BUT Mesures Physiques · IUT de Blois',
+          'contact.footer-copy':   '© 2026 — Bachelor Physikalische Messungen · IUT de Blois',
           /* Filtre projets */
           'filter.all': 'Alle',
           'filter.physique': 'Physik',
@@ -5672,7 +5691,7 @@
           'contact.success-text':  'Gracias por ponerte en contacto.<br>Te responderé lo antes posible.',
           'contact.reset':         'Enviar otro mensaje',
           'contact.note':          'Tus datos no se almacenan ni se comparten',
-          'contact.footer-copy':   '© 2025 — BUT Mesures Physiques · IUT de Blois',
+          'contact.footer-copy':   '© 2026 — BUT Medidas Físicas · IUT de Blois',
           /* Filtre projets */
           'filter.all': 'Todo',
           'filter.physique': 'Física',
@@ -5899,7 +5918,7 @@
           'contact.success-text':  '感谢您的联系。<br>我将尽快回复您。',
           'contact.reset':         '再发一条消息',
           'contact.note':          '您的数据不会被存储或共享',
-          'contact.footer-copy':   '© 2025 — BUT Mesures Physiques · IUT de Blois',
+          'contact.footer-copy':   '© 2026 — BUT 物理测量 · IUT de Blois',
           /* 筛选 */
           'filter.all': '全部',
           'filter.physique': '物理',
@@ -6126,7 +6145,7 @@
           'contact.success-text':  'お問い合わせありがとうございます。<br>できるだけ早くご返信いたします。',
           'contact.reset':         '別のメッセージを送る',
           'contact.note':          'お客様のデータは保存・共有されません',
-          'contact.footer-copy':   '© 2025 — BUT Mesures Physiques · IUT de Blois',
+          'contact.footer-copy':   '© 2026 — BUT 物理測定 · IUT de Blois',
           /* フィルター */
           'filter.all': 'すべて',
           'filter.physique': '物理',
@@ -7381,17 +7400,28 @@
   </script>
 
   <!-- ══════════════════════════════════════════════════════
-       Three.js — FloatingShapes
-       Canvas fixé directement sur body (position:fixed)
-       Invisible sur le hero, fade-in au scroll
+       Three.js — FloatingShapes  (monde infini + recyclage)
+       La caméra traverse un nuage permanent de formes.
+       Fog adaptatif selon le thème clair/sombre.
        ══════════════════════════════════════════════════════ -->
   <script>
   (function () {
 
-    var initialized = false;
-    var running     = false;
-    var rafId       = null;
+    var initialized    = false;
+    var running        = false;
+    var rafId          = null;
     var renderer, scene, camera, shapes, cv;
+    var targetScrollY  = 0;
+    var currentScrollY = 0;
+
+    /* Zone de recyclage : ±RECYCLE unités autour de la caméra */
+    var RECYCLE = 11;
+
+    function spawnY(camY, fromTop) {
+      /* Fait apparaître une forme juste en-dehors du champ de vision */
+      var side = fromTop ? (camY + RECYCLE) : (camY - RECYCLE);
+      return side + (Math.random() - 0.5) * 1.5;
+    }
 
     function initShapes() {
       if (initialized || !window.THREE) return;
@@ -7401,22 +7431,31 @@
       var W = window.innerWidth;
       var H = window.innerHeight;
 
-      renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
+      /* ── Couleur de fond CSS → brouillard adaptatif ── */
+      var bgStr  = getComputedStyle(document.documentElement)
+                     .getPropertyValue('--bg').trim();
+      var fogInt = parseInt(bgStr.replace('#', ''), 16) || 0x181c22;
+
+      renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false });
       renderer.setPixelRatio(1);
       renderer.setSize(W, H);
-      renderer.setClearColor(0x000000, 0);
+      renderer.setClearColor(fogInt, 1); /* fond opaque = couleur du thème */
 
-      /* Canvas fixé directement sur body → jamais affecté par le scroll */
       cv = renderer.domElement;
       cv.style.cssText = 'position:fixed;top:0;left:0;z-index:-1;' +
                          'pointer-events:none;opacity:0;transition:opacity 0.8s ease;';
       document.body.appendChild(cv);
 
-      scene  = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 100);
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(fogInt);
+      /* Brouillard exponentiel : les formes émergent progressivement du fond */
+      scene.fog = new THREE.FogExp2(fogInt, 0.085);
+
+      camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 60);
       camera.position.z = 8;
 
-      var COLORS = [0x5b9bd5, 0x5b9bd5, 0x5b9bd5, 0xe8b94a, 0xe8b94a];
+      /* Couleurs désaturées : gris-bleu et gris-or très subtils */
+      var COLORS = [0x8a9aaa, 0x9ba8b4, 0xb0bac4, 0xb8a882, 0xa89e78];
 
       function makeGeo(t) {
         if (t === 0) return new THREE.OctahedronGeometry(1);
@@ -7424,22 +7463,22 @@
         return new THREE.BoxGeometry(1, 1, 1);
       }
 
+      /* ── 12 formes (densité réduite de moitié) ── */
       shapes = [];
-      for (var i = 0; i < 14; i++) {
-        var size = 0.18 + Math.random() * 0.30;
+      for (var i = 0; i < 12; i++) {
+        var size = 0.15 + Math.random() * 0.35;
         var mesh = new THREE.Mesh(
           makeGeo(Math.floor(Math.random() * 3)),
           new THREE.MeshBasicMaterial({
-            color: COLORS[Math.floor(Math.random() * COLORS.length)],
-            wireframe: true, transparent: true,
-            opacity: 0.055 + Math.random() * 0.045
+            color:       COLORS[Math.floor(Math.random() * COLORS.length)],
+            wireframe:   true,
+            transparent: true,
+            opacity:     0.55 + Math.random() * 0.30  /* plus opaque : fog s'occupe du fondu */
           })
         );
-        mesh.position.set(
-          (Math.random() - 0.5) * 14,
-          (Math.random() - 0.5) * 9,
-          (Math.random() - 0.5) * 3
-        );
+        var py = (Math.random() - 0.5) * RECYCLE * 2; /* réparti sur la zone visible */
+        var pz = -(1 + Math.random() * 11);            /* profondeur 1→12 devant caméra */
+        mesh.position.set((Math.random() - 0.5) * 16, py, pz);
         mesh.rotation.set(
           Math.random() * Math.PI * 2,
           Math.random() * Math.PI * 2,
@@ -7448,24 +7487,26 @@
         mesh.scale.setScalar(size);
         scene.add(mesh);
         shapes.push({
-          mesh: mesh,
-          vx: (Math.random() - 0.5) * 0.026,   /* ~8× plus vite qu'avant */
-          vy: (Math.random() - 0.5) * 0.018,
-          rx: (Math.random() - 0.5) * 0.022,
-          ry: (Math.random() - 0.5) * 0.022
+          mesh:        mesh,
+          baseY:       py,
+          rx:          (Math.random() - 0.5) * 0.009,
+          ry:          (Math.random() - 0.5) * 0.009,
+          floatSpeed:  0.18 + Math.random() * 0.28,
+          floatAmp:    0.25 + Math.random() * 0.55,
+          floatOffset: Math.random() * Math.PI * 2
         });
       }
 
-      /* ── Opacité pilotée par le scroll (invisible sur le hero) ── */
-      function updateOpacity() {
-        var sy = window.scrollY || window.pageYOffset || 0;
+      /* ── Scroll → opacité + cible lerp ── */
+      function onScroll() {
+        var sy    = window.scrollY || 0;
         var heroH = window.innerHeight;
-        /* Fade-in entre 40% et 90% du hero scrollé */
+        targetScrollY  = sy;
         var t = Math.max(0, Math.min(1, (sy - heroH * 0.4) / (heroH * 0.5)));
         cv.style.opacity = t.toFixed(3);
       }
-      window.addEventListener('scroll', updateOpacity, { passive: true });
-      updateOpacity(); // état initial
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
 
       /* ── Resize ── */
       window.addEventListener('resize', function () {
@@ -7474,22 +7515,59 @@
         camera.updateProjectionMatrix();
         renderer.setSize(nW, nH);
       }, { passive: true });
+
+      /* ── Sync couleur fond quand le thème change (jour/nuit) ── */
+      function syncFogColor() {
+        var bg  = getComputedStyle(document.documentElement)
+                    .getPropertyValue('--bg').trim();
+        var col = parseInt(bg.replace('#', ''), 16) || 0x181c22;
+        renderer.setClearColor(col, 1);
+        scene.background.setHex(col);
+        scene.fog.color.setHex(col);
+      }
+      new MutationObserver(function (mutations) {
+        mutations.forEach(function (m) {
+          if (m.attributeName === 'data-theme') syncFogColor();
+        });
+      }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
     }
 
     function animate() {
       if (!running) return;
       rafId = requestAnimationFrame(animate);
+
+      var t   = Date.now() * 0.001;
+
+      /* Caméra descend doucement dans le nuage */
+      currentScrollY      += (targetScrollY - currentScrollY) * 0.05;
+      camera.position.y    = -currentScrollY * 0.002;
+
+      var camY = camera.position.y;
+
       for (var i = 0; i < shapes.length; i++) {
-        var s = shapes[i];
-        s.mesh.position.x += s.vx;
-        s.mesh.position.y += s.vy;
+        var s    = shapes[i];
+
+        /* Flottaison sinusoïdale (mouvement principal) */
+        s.mesh.position.y = s.baseY + Math.sin(t * s.floatSpeed + s.floatOffset) * s.floatAmp;
         s.mesh.rotation.x += s.rx;
         s.mesh.rotation.y += s.ry;
-        if (s.mesh.position.x >  8) s.mesh.position.x = -8;
-        if (s.mesh.position.x < -8) s.mesh.position.x =  8;
-        if (s.mesh.position.y >  5.5) s.mesh.position.y = -5.5;
-        if (s.mesh.position.y < -5.5) s.mesh.position.y =  5.5;
+
+        /* ── Recyclage : sort par le haut → réapparaît en bas, et vice-versa ──
+           Donne de nouvelles coordonnées X et Z aléatoires → nuage vivant      */
+        var relY = s.mesh.position.y - camY;
+        if (relY > RECYCLE) {
+          s.baseY              = spawnY(camY, false); /* respawn en bas */
+          s.mesh.position.x    = (Math.random() - 0.5) * 16;
+          s.mesh.position.z    = -(1 + Math.random() * 11);
+          s.floatOffset        = Math.random() * Math.PI * 2;
+        } else if (relY < -RECYCLE) {
+          s.baseY              = spawnY(camY, true);  /* respawn en haut */
+          s.mesh.position.x    = (Math.random() - 0.5) * 16;
+          s.mesh.position.z    = -(1 + Math.random() * 11);
+          s.floatOffset        = Math.random() * Math.PI * 2;
+        }
       }
+
       renderer.render(scene, camera);
     }
 
@@ -7499,7 +7577,6 @@
       rafId = requestAnimationFrame(animate);
     }
 
-    /* Polling — démarre dès que THREE est disponible (fichier local) */
     var n = 0;
     var poll = setInterval(function () {
       if (!window.THREE) { if (++n > 150) clearInterval(poll); return; }
