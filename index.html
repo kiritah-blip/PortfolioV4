@@ -502,13 +502,23 @@
       .c-prev, .c-next { width: 40px; height: 40px; }
       #projets .section-wrap { padding-top: 30px; padding-bottom: 60px; }
       /* Texte carte compact */
-      .carousel-scene .card-title { font-size: 0.80rem; }
-      .carousel-scene .card-desc  { font-size: 0.75rem; line-height: 1.48; }
-      .carousel-scene .card-tools { margin-top: 0.5rem; }
-      .carousel-scene .card-footer{ margin-top: 0.6rem; padding-top: 0.5rem; }
-      /* Anti-glitch : évite que le contenu disparaisse pendant la rotation 3D */
+      .carousel-scene .card-title { font-size: 0.78rem; }
+      .carousel-scene .card-tag   { font-size: 0.54rem; padding: 0.12rem 0.45rem; margin-bottom: 0.35rem; }
+      .carousel-scene .card-num   { margin-bottom: 0.3rem; font-size: 0.52rem; }
+      /* Description tronquée à 3 lignes → bouton toujours visible */
+      .carousel-scene .card-desc  {
+        font-size: 0.74rem; line-height: 1.45;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        flex: 0 0 auto; /* ne grandit plus librement */
+      }
+      .carousel-scene .card-tools { margin-top: 0.45rem; gap: 0.3rem; }
+      .carousel-scene .tool-pill  { font-size: 0.50rem; padding: 0.1rem 0.4rem; }
+      .carousel-scene .card-footer{ margin-top: 0.5rem; padding-top: 0.45rem; }
+      /* Anti-glitch rotation 3D */
       .carousel-item              { backface-visibility: visible; -webkit-backface-visibility: visible; }
-      .carousel-scene .card       { overflow: visible; }
     }
 
     /* ── CONTENT-VISIBILITY : saute le layout/paint des sections hors viewport ── */
@@ -1620,19 +1630,12 @@
       nav { padding: 1.2rem 1.5rem; }
       .about-grid { grid-template-columns: 1fr; gap: 3rem; }
       footer { padding: 1.5rem; flex-direction: column; gap: 0.8rem; text-align: center; }
-      /* Header sticky → bouton ✕ toujours visible même après scroll */
-      .modal-header {
-        padding: 1rem 1.5rem;
-        padding-right: 5.5rem; /* espace pour les boutons */
-        position: sticky;
-        top: 0;
-        z-index: 20;
-        background: #1a1f2a;
-        border-bottom: 1px solid var(--border);
-      }
+      /* Header normal — seuls les boutons sont fixés en haut */
+      .modal-header { padding: 1.5rem; padding-top: 4rem; }
       .modal-body   { padding: 1.5rem; }
-      .modal-close  { top: 0.7rem; right: 0.7rem;  width: 38px; height: 38px; font-size: 0.95rem; }
-      .modal-share  { top: 0.7rem; right: 3.3rem;  width: 38px; height: 38px; }
+      /* Boutons fixés au viewport — toujours accessibles au scroll */
+      .modal-close  { position: fixed; top: 0.6rem; right: 0.6rem;  z-index: 600; width: 38px; height: 38px; font-size: 0.95rem; }
+      .modal-share  { position: fixed; top: 0.6rem; right: 3.2rem;  z-index: 600; width: 38px; height: 38px; }
       .modal-share svg { width: 13px; height: 13px; }
     }
     @media (max-width: 600px) { .nav-links { display: none; } }
@@ -7422,8 +7425,7 @@
        ══════════════════════════════════════════════════════ -->
   <script>
   (function () {
-    /* Désactivé sur mobile : GPU insuffisant, cause des crashes */
-    if (window.innerWidth < 768 || /Mobi|Android|iPhone|iPad|Touch/i.test(navigator.userAgent)) return;
+    var isMobile = window.innerWidth < 768 || /Mobi|Android|iPhone|iPad|Touch/i.test(navigator.userAgent);
 
     var initialized    = false;
     var running        = false;
@@ -7467,7 +7469,8 @@
       scene = new THREE.Scene();
       scene.background = new THREE.Color(fogInt);
       /* Brouillard exponentiel : les formes émergent progressivement du fond */
-      scene.fog = new THREE.FogExp2(fogInt, 0.085);
+      /* Fog plus dense sur mobile pour alléger le rendu */
+      scene.fog = new THREE.FogExp2(fogInt, isMobile ? 0.14 : 0.085);
 
       camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 60);
       camera.position.z = 8;
@@ -7481,9 +7484,10 @@
         return new THREE.BoxGeometry(1, 1, 1);
       }
 
-      /* ── 12 formes (densité réduite de moitié) ── */
+      /* 5 formes sur mobile, 12 sur desktop */
+      var SHAPE_COUNT = isMobile ? 5 : 12;
       shapes = [];
-      for (var i = 0; i < 12; i++) {
+      for (var i = 0; i < SHAPE_COUNT; i++) {
         var size = 0.15 + Math.random() * 0.35;
         var mesh = new THREE.Mesh(
           makeGeo(Math.floor(Math.random() * 3)),
