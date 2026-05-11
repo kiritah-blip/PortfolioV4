@@ -482,7 +482,9 @@
       .carousel-item   { width: clamp(220px, 52vw, 270px); height: clamp(320px, 58vh, 400px); }
       .filter-bar      { margin-bottom: 50px; }
       #projets .section-wrap { padding-top: 40px; padding-bottom: 80px; }
-      .carousel-item   { backface-visibility: visible; -webkit-backface-visibility: visible; }
+      /* Supprimer toutes les transitions opacity sur mobile → élimine le flicker 3D WebKit */
+      .carousel-item                              { transition: none !important; backface-visibility: visible; -webkit-backface-visibility: visible; }
+      .carousel-scene .carousel-item .card-preview{ transition: none !important; }
     }
 
     /* Mobile (≤ 480px) */
@@ -1633,12 +1635,12 @@
       nav { padding: 1.2rem 1.5rem; }
       .about-grid { grid-template-columns: 1fr; gap: 3rem; }
       footer { padding: 1.5rem; flex-direction: column; gap: 0.8rem; text-align: center; }
-      /* Header normal — seuls les boutons sont fixés en haut */
-      .modal-header { padding: 1.5rem; padding-top: 4rem; }
+      /* Header normal */
+      .modal-header { padding: 1.5rem; padding-top: 3rem; }
       .modal-body   { padding: 1.5rem; }
-      /* Boutons fixés au viewport — toujours accessibles au scroll */
-      .modal-close  { position: fixed; top: 0.6rem; right: 0.6rem;  z-index: 600; width: 38px; height: 38px; font-size: 0.95rem; }
-      .modal-share  { position: fixed; top: 0.6rem; right: 3.2rem;  z-index: 600; width: 38px; height: 38px; }
+      /* Le ✕ natif est remplacé par le bouton JS injecté sur <body> */
+      .modal-close  { display: none; }
+      .modal-share  { position: fixed; top: 0.6rem; right: 3.2rem; z-index: 600; width: 38px; height: 38px; }
       .modal-share svg { width: 13px; height: 13px; }
     }
     @media (max-width: 600px) { .nav-links { display: none; } }
@@ -3824,11 +3826,45 @@
 
   <script>
     // Modal open/close
+    /* Bouton ✕ flottant injecté sur <body> — toujours visible au scroll (mobile) */
+    var _mobileCloseBtn = null;
+    function _showMobileClose(id) {
+      if (_mobileCloseBtn) { _mobileCloseBtn.remove(); }
+      var btn = document.createElement('button');
+      btn.setAttribute('aria-label', 'Fermer');
+      btn.innerHTML = '&#x2715;';
+      btn.style.cssText = [
+        'position:fixed',
+        'top:0.6rem',
+        'right:0.6rem',
+        'z-index:9999',
+        'width:40px',
+        'height:40px',
+        'background:var(--surface)',
+        'border:1px solid var(--border2)',
+        'color:var(--muted)',
+        'font-size:1rem',
+        'cursor:pointer',
+        'display:flex',
+        'align-items:center',
+        'justify-content:center',
+        'box-shadow:0 2px 12px rgba(0,0,0,0.4)'
+      ].join(';');
+      btn.onclick = function () { closeModal(id); };
+      document.body.appendChild(btn);
+      _mobileCloseBtn = btn;
+    }
+    function _hideMobileClose() {
+      if (_mobileCloseBtn) { _mobileCloseBtn.remove(); _mobileCloseBtn = null; }
+    }
+
     function openModal(id) {
       const overlay = document.getElementById('modal-' + id);
       if (!overlay) return;
       overlay.classList.add('open');
       document.body.style.overflow = 'hidden';
+      /* Bouton ✕ sur body uniquement si modal ouverte (toutes tailles) */
+      _showMobileClose(id);
     }
 
     function closeModal(id) {
@@ -3836,6 +3872,7 @@
       if (!overlay) return;
       overlay.classList.remove('open');
       document.body.style.overflow = '';
+      _hideMobileClose();
     }
 
     function closeModalOnOverlay(e, id) {
