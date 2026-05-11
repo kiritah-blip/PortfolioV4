@@ -478,31 +478,37 @@
     /* Tablette (≤ 768px) */
     @media (max-width: 768px) {
       .carousel-scene  { perspective: 1200px; }
-      .carousel-track  { height: clamp(280px, 55vh, 360px); max-height: 360px; margin-bottom: 70px; }
-      .carousel-item   { width: clamp(200px, 52vw, 250px); height: clamp(280px, 52vh, 350px); max-height: 350px; }
+      .carousel-track  { height: clamp(320px, 58vh, 400px); margin-bottom: 70px; }
+      .carousel-item   { width: clamp(220px, 52vw, 270px); height: clamp(320px, 58vh, 400px); }
       .filter-bar      { margin-bottom: 50px; }
       #projets .section-wrap { padding-top: 40px; padding-bottom: 80px; }
+      .carousel-item   { backface-visibility: visible; -webkit-backface-visibility: visible; }
     }
 
     /* Mobile (≤ 480px) */
     @media (max-width: 480px) {
       .carousel-scene  { perspective: 900px; perspective-origin: 50% 40%; }
-      .carousel-track  { height: clamp(260px, 50vh, 320px); max-height: 320px; margin-bottom: 50px; }
+      /* Hauteur augmentée pour que le bouton reste visible */
+      .carousel-track  { height: clamp(340px, 62vh, 420px); margin-bottom: 50px; }
       .carousel-item   {
-        width: clamp(200px, 78vw, 240px);
-        height: clamp(260px, 50vh, 310px);
-        max-height: 310px;
-        /* Padding réduit sur petit écran */
-        padding: 1rem 1.1rem 28px !important;
+        width: clamp(220px, 82vw, 260px);
+        height: clamp(340px, 62vh, 420px);
+        /* Padding uniforme — bouton aligné avec le bas */
+        padding: 1rem 1.2rem 40px !important;
       }
       .filter-bar      { margin-bottom: 36px; gap: 0.4rem; }
       .filter-btn      { font-size: 0.52rem; padding: 0.35rem 0.75rem; }
       .carousel-nav    { gap: 1.2rem; }
       .c-prev, .c-next { width: 40px; height: 40px; }
       #projets .section-wrap { padding-top: 30px; padding-bottom: 60px; }
-      /* Texte carte plus compact */
-      .carousel-scene .card-title { font-size: 0.82rem; }
-      .carousel-scene .card-desc  { font-size: 0.78rem; line-height: 1.5; }
+      /* Texte carte compact */
+      .carousel-scene .card-title { font-size: 0.80rem; }
+      .carousel-scene .card-desc  { font-size: 0.75rem; line-height: 1.48; }
+      .carousel-scene .card-tools { margin-top: 0.5rem; }
+      .carousel-scene .card-footer{ margin-top: 0.6rem; padding-top: 0.5rem; }
+      /* Anti-glitch : évite que le contenu disparaisse pendant la rotation 3D */
+      .carousel-item              { backface-visibility: visible; -webkit-backface-visibility: visible; }
+      .carousel-scene .card       { overflow: visible; }
     }
 
     /* ── CONTENT-VISIBILITY : saute le layout/paint des sections hors viewport ── */
@@ -1614,11 +1620,19 @@
       nav { padding: 1.2rem 1.5rem; }
       .about-grid { grid-template-columns: 1fr; gap: 3rem; }
       footer { padding: 1.5rem; flex-direction: column; gap: 0.8rem; text-align: center; }
-      .modal-header { padding: 1.5rem; padding-top: 5rem; }
+      /* Header sticky → bouton ✕ toujours visible même après scroll */
+      .modal-header {
+        padding: 1rem 1.5rem;
+        padding-right: 5.5rem; /* espace pour les boutons */
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: #1a1f2a;
+        border-bottom: 1px solid var(--border);
+      }
       .modal-body   { padding: 1.5rem; }
-      /* Boutons flottants — repositionnés pour ne pas masquer le titre */
-      .modal-close  { top: 1rem; right: 1rem;  width: 38px; height: 38px; font-size: 0.95rem; }
-      .modal-share  { top: 1rem; right: 3.6rem; width: 38px; height: 38px; }
+      .modal-close  { top: 0.7rem; right: 0.7rem;  width: 38px; height: 38px; font-size: 0.95rem; }
+      .modal-share  { top: 0.7rem; right: 3.3rem;  width: 38px; height: 38px; }
       .modal-share svg { width: 13px; height: 13px; }
     }
     @media (max-width: 600px) { .nav-links { display: none; } }
@@ -2365,8 +2379,8 @@
       font-family: 'Cinzel', serif;
     }
     #landing-gate h1 {
-      font-size: clamp(3rem, 8vw, 5rem);
-      letter-spacing: 15px;
+      font-size: clamp(1.8rem, 8vw, 5rem);
+      letter-spacing: clamp(6px, 2vw, 15px);
       margin: 0;
       text-transform: uppercase;
       /* Dégradé argent → blanc → or pâle → blanc → argent */
@@ -7191,9 +7205,11 @@
        ══════════════════════════════════════════════════════ -->
   <script>
   (function () {
+    /* Désactivé sur mobile : performances insuffisantes + bug iOS scroll */
+    if (window.innerWidth < 768 || /Mobi|Android|iPhone|iPad|Touch/i.test(navigator.userAgent)) return;
+
     console.log('[HeroScene] IIFE start — reduced-motion=' +
       window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-    // Garde prefers-reduced-motion désactivée pour le debug
 
     var initialized = false;
     var running     = false;
@@ -7406,6 +7422,8 @@
        ══════════════════════════════════════════════════════ -->
   <script>
   (function () {
+    /* Désactivé sur mobile : GPU insuffisant, cause des crashes */
+    if (window.innerWidth < 768 || /Mobi|Android|iPhone|iPad|Touch/i.test(navigator.userAgent)) return;
 
     var initialized    = false;
     var running        = false;
